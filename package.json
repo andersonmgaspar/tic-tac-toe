@@ -7,7 +7,7 @@
   "devDependencies": {
     "react-scripts": "^5.0.1"
   },
-  "name": "ljg0t8",
+  "name": "tictactoe",
   "description": null,
   "version": "0.0.0",
   "scripts": {
