@@ -9,45 +9,35 @@ function Square({ value, onSquareClick }) {
 }
 
 export function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
-      return;
-    }
-    const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = 'X';
-    } else {
-      nextSquares[i] = 'O';
-    }
+  const handleClick = (i) => {
+    if (squares[i] || calculateWinner(squares)) return;
+    const nextSquares = [...squares];
+    nextSquares[i] = xIsNext ? 'X' : 'O';
     onPlay(nextSquares);
-  }
+  };
 
   const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = 'Winner: ' + winner;
-  } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
-  }
+  const status = winner
+    ? `Winner: ${winner}`
+    : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
     <>
       <div className='status'>{status}</div>
-      <div className='board-row'>
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className='board-row'>
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className='board-row'>
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
+      {[0, 1, 2].map((row) => (
+        <div key={row} className='board-row'>
+          {[0, 1, 2].map((col) => {
+            const index = row * 3 + col;
+            return (
+              <Square
+                key={index}
+                value={squares[index]}
+                onSquareClick={() => handleClick(index)}
+              />
+            );
+          })}
+        </div>
+      ))}
     </>
   );
 }
@@ -68,17 +58,19 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  function handleCurrentMoveDescription(move) {
+  function handleMoveDescription(move) {
     let description;
+    const atCurrentMove = move === currentMove;
+    const goToStart = move <= 0;
+    const moveText = atCurrentMove ? 'You are at move #' : 'Go to move #';
 
-    if (move > 0) {
-      description = 'Go to move #' + move;
-    } else {
+    if (goToStart) {
       description = 'Go to game start';
+    } else {
+      description = moveText + move;
     }
 
-    if (move === currentMove) {
-      description = 'You are at  move #' + move;
+    if (atCurrentMove) {
       return <span className='current-move'>{description}</span>;
     } else {
       return <button onClick={() => jumpTo(move)}>{description}</button>;
@@ -86,7 +78,7 @@ export default function Game() {
   }
 
   const moves = history.map((squares, move) => {
-    return <li key={move}>{handleCurrentMoveDescription(move)}</li>;
+    return <li key={move}>{handleMoveDescription(move)}</li>;
   });
 
   return (
